@@ -5,11 +5,18 @@ const User = require("../models/user.js");
 const bcrypt =require('bcrypt');
 //jwt creating token
 const jwt = require("jsonwebtoken");
+const auth = require('../middleware/auth.js');
+const cookieParser = require('cookie-parser');
+
+
 
 
 //hashing password 
   // const passwordhash =await bcrypt.hash(password, 8);
 
+  router.get('/admin',auth,(req,res)=>{
+    res.render('admin');
+});
 
 //login handle
 router.get('/login',(req,res)=>{
@@ -28,27 +35,35 @@ try {
          email : req.body.email,
          password : req.body.password
          
+         
      });
      console.log('aaa');
      //password hashing
      //using middleware
-    const token = userReg.generateAuthToken();
+    const token = await userReg.generateAuthToken();
+    console.log('i m here');
+
+    res.cookie("jwt",token)
+    // {
+    //     //also can expire this cookei after some time
+    //   // expires:new Date(Date.now()+4000000000000),
+    //     httpOnly:true,
+    //     //secure:true,
+        
+    // });
+    console.log("now i m down here");
+   // console.log("this is the cookie"+cookie);
+
     
      const registered = await userReg.save();
+     console.log(registered);
      res.status(201).render("login") 
-     console.log('saved'); 
 
-     
 } catch (error) {
-    console.log('bbb')
-    res.sendStatus(400).json({message:'error message'})
+    console.log('u r catched'); 
 
-}
-  
-
-          
-
-    
+    //res.sendStatus(400).json({message:'error message'})
+}   
 });
 
     
@@ -63,14 +78,29 @@ router.post('/login',async (req,res,next)=>{
         });
         //getting password of respective user email acc
         //(useremail.password);
+        console.log('before hashing password ')
 
-        const ismatch = bcrypt.compare(password, usermail.password);
+        const ismatch =await bcrypt.compare(password, useremail.password);
+        console.log('after hashing');
 
          //using middleware
-    const token = useremail.generateAuthToken();
+    const token =await  useremail.generateAuthToken();
         console.log(token);
+     //storing jwt token in cookies  while log in post
+     res.cookie("jwt",token,{
+        //also can expire this cookei after some time
+      // expires:new Date(Date.now()+4000000000000),
+        httpOnly:true,
+       // secure:true
+    });
+    //getting cookies
+    //req.cookies.jwt;
+
         if(ismatch){
-            res.status(201).send('you are logged in')
+            console.log('inside ismatch')
+            res.redirect("restrictedpage")
+
+           // res.status(201).send('you are logged in')
         }else{
             res.send('Email or password are not matching');
         }
@@ -78,7 +108,8 @@ router.post('/login',async (req,res,next)=>{
 
         
     } catch (error) {
-        res.sendStatus(400).json({message:'error message'})
+        console.log('catched error ')
+      //  res.sendStatus(400).json({message:'error message'})
     }
 
 
@@ -88,8 +119,25 @@ router.post('/login',async (req,res,next)=>{
 
 
 //logout
-router.get('/logout',(req,res)=>{
+router.get('/logout',auth,(req,res)=>{
+try {
+  //single device logout
+  //req.user.tokens = req.user.tokens.filter((currentEl)=>{
+   // return currentEl.token===req.token;
+ // });
 
+
+ //logout from all devices
+  req.user.tokens=[];
+  res.clearCookie("jwt");
+  await req.user.save();
+
+  console.log('logged out');
+  req.render("welcome");
+  
+} catch (error) {
+  res.status(500).send(error);
+}
 
  });
 

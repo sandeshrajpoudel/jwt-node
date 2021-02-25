@@ -3,15 +3,12 @@ const express = require('express');
 const router = express.Router();
 const app = express();
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
 //aaaa
-//flashing messages
-//const session = require('express-session');
-//const flash = require('connect-flash');
 //mongoose
 mongoose.connect(process.env.DB_URL,{
     useNewUrlParser: true,  
-    useNewUrlParser: true,
-    useCreateIndex:true,
+    useCreateIndex:true, 
     useUnifiedTopology : true
 })
 const db = mongoose.connection;
@@ -24,15 +21,16 @@ db.once('open',function(error){
 });
 //EJS
 app.set('view engine','ejs');
-//app.use(expressEjsLayout);
-//BodyParser
 app.use(express.json());
+app.use(cookieParser());
+
 app.use(express.urlencoded({extended:false}));
 
 
 
+
 //Routes
-app.use('/',require('./routes/index'));
+app.use('/users',require('./routes/index'));
 app.use('/users',require('./routes/routing'));
 
 

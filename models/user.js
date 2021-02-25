@@ -1,6 +1,7 @@
+const dotenv = require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 
 
@@ -32,15 +33,27 @@ tokens:[{
 });
 //generating tokens
 UserSchema.methods.generateAuthToken = async function(){
-try {
-    const Token =await jwt.sign({_id:this._id.toString()},process.env.SECRET_KEY,
-       {expiresIn:"2 months"});
-       this.tokens=this.tokens.concat({token:Token})
+
+    try {
+        console.log('inside try'); 
+        console.log(this._id); 
+
+
+    const token =await jwt.sign({_id:this._id.toString()},process.env.SECRET_KEY);
+    console.log('after secret key'); 
+
+    this.tokens = this.tokens.concat({token:token})
+/////error is down here
       await this.save();
-       return token;
+      console.log(token); 
+
+      
+      return token;
+
     
 } catch (error) {
-    resizeBy.send('error'+error);
+    console.log('hello error');
+   // resizeBy.send('error'+error);
     
 }
 

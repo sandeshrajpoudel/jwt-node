@@ -1,8 +1,20 @@
 const express = require('express');
 const router  = express.Router();
+
+const auth = require('../middleware/auth.js');
+
+
+
 //home page
 router.get('/', (req,res)=>{
-    res.send('welcome back');
+
+
+    res.render('welcome');
+});
+router.get('/restrictedpage',(req,res)=>{
+
+
+    res.render('restrictedpage');
 })
 
 
