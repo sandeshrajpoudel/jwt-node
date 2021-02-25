@@ -38,11 +38,9 @@ try {
          
          
      });
-     console.log('aaa');
      //password hashing
      //using middleware
     const token = await userReg.generateAuthToken();
-    console.log('i m here');
 
     res.cookie("jwt",token)
     // {
@@ -52,7 +50,6 @@ try {
     //     //secure:true,
         
     // });
-    console.log("now i m down here");
    // console.log("this is the cookie"+cookie);
 
     
@@ -91,6 +88,7 @@ router.post('/login',async (req,res,next)=>{
           httpOnly:true,
         // secure:true
           });
+    
 
          //using middleware
          console.log('now');
@@ -116,11 +114,7 @@ router.post('/login',async (req,res,next)=>{
         console.log('catched error ')
       //  res.sendStatus(400).json({message:'error message'})
     }
-
-
-
-
-  });
+    });
 
 
 //logout
