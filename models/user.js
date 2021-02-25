@@ -22,6 +22,13 @@ date :{
     type : Date,
     default : Date.now
 },
+roles:{
+    type: String,
+    required: true,
+    default:"USER",
+    enum: ["USER", "ADMIN"]
+}
+,
 tokens:[{
     token:{
         type  : String,

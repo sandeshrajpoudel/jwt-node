@@ -7,6 +7,7 @@ const bcrypt =require('bcrypt');
 const jwt = require("jsonwebtoken");
 const auth = require('../middleware/auth.js');
 const cookieParser = require('cookie-parser');
+const { check } = require('express-validator');
 
 
 
@@ -56,7 +57,7 @@ try {
 
     
      const registered = await userReg.save();
-     console.log(registered);
+    
      res.status(201).render("login") 
 
 } catch (error) {
@@ -69,35 +70,39 @@ try {
     
 router.post('/login',async (req,res,next)=>{
     try {
-    const email = req.body.email;
-    const password = req.body.password;
-    console.log(`${email}, ${password}`);
+      const Email=req.body.email;
+     const  Password = req.body.password;
+
+
+   
     const useremail= await User.findOne({
-            email:email
+            email:Email
     //lhs= database const & rhs = from ejs username field
         });
         //getting password of respective user email acc
         //(useremail.password);
         console.log('before hashing password ')
 
-        const ismatch =await bcrypt.compare(password, useremail.password);
-        console.log('after hashing');
+        const token =await  useremail.generateAuthToken();
+        //storing jwt token in cookies  while log in post
+        res.cookie("jwt",token,{
+         //also can expire this cookei after some time
+        // expires:new Date(Date.now()+4000000000000),
+          httpOnly:true,
+        // secure:true
+          });
 
          //using middleware
-    const token =await  useremail.generateAuthToken();
-        console.log(token);
-     //storing jwt token in cookies  while log in post
-     res.cookie("jwt",token,{
-        //also can expire this cookei after some time
-      // expires:new Date(Date.now()+4000000000000),
-        httpOnly:true,
-       // secure:true
-    });
-    //getting cookies
-    //req.cookies.jwt;
+         console.log('now');
+         const ismatch =await bcrypt.compare(Password, useremail.password)
+         console.log('after hashing');
 
         if(ismatch){
             console.log('inside ismatch')
+           
+              //getting cookies
+              //req.cookies.jwt;
+
             res.redirect("restrictedpage")
 
            // res.status(201).send('you are logged in')
@@ -119,7 +124,7 @@ router.post('/login',async (req,res,next)=>{
 
 
 //logout
-router.get('/logout',auth,(req,res)=>{
+router.get('/logout',auth, async(req,res)=>{
 try {
   //single device logout
   //req.user.tokens = req.user.tokens.filter((currentEl)=>{

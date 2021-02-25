@@ -9,8 +9,9 @@ const cookieParser = require('cookie-parser');
 mongoose.connect(process.env.DB_URL,{
     useNewUrlParser: true,  
     useCreateIndex:true, 
-    useUnifiedTopology : true
-})
+    useUnifiedTopology : true,
+   
+});
 const db = mongoose.connection;
 
 db.on('error',function(error){
